@@ -31,9 +31,14 @@ const depositByIdPaymentLoader = new DataLoader((paymentsIds) => {
   return depositByIdPayments(paymentsIds);
 });
 
-const transferByIdPaymentLoader = new DataLoader((paymentsIds) => {
+const transferByIdPaymentFromLoader = new DataLoader((paymentsIds) => {
   console.log("transferByIdPaymentLoader",paymentsIds)
-  return transferByIdPayments(paymentsIds);
+  return transferByIdPaymentsFrom(paymentsIds);
+});
+
+const transferByIdPaymentToLoader = new DataLoader((paymentsIds) => {
+  console.log("transferByIdPaymenToLoader",paymentsIds)
+  return transferByIdPaymentsTo(paymentsIds);
 });
 
 const accounts = async accountsIds => {
@@ -73,7 +78,7 @@ const depositByIdPayments = async paymentsIds => {
     const deposits = await Deposit.find({ payment: { $in: paymentsIds } });
     deposits.sort((a, b) => {
       return (
-        paymentsIds.indexOf(a._id.toString()) - paymentsIds.indexOf(b._id.toString())
+        paymentsIds.indexOf(a.payment.toString()) - paymentsIds.indexOf(b.payment.toString())
       );
     });
     return deposits.map(event => {
@@ -85,21 +90,34 @@ const depositByIdPayments = async paymentsIds => {
   }
 };
 
-const transferByIdPayments = async paymentsIds => {
+const transferByIdPaymentsFrom = async paymentsIds => {
   try {
     const transfers = await Transfer.find({ fromPayment: { $in: paymentsIds } });
-    const transfers2 = await Transfer.find({ toPayment: { $in: paymentsIds } });
-    const ts = [
-      ...transfers,
-      ...transfers2
-    ]
-    ts.sort((a, b) => {
+    transfers.sort((a, b) => {
       return (
-        paymentsIds.indexOf(a._id.toString()) - paymentsIds.indexOf(b._id.toString())
+        paymentsIds.indexOf(a.fromPayment.toString()) - paymentsIds.indexOf(b.fromPayment.toString())
       );
     });
-    console.log("transferids", ts)
-    return ts.map(t => {
+    console.log("transferids", transfers)
+    return transfers.map(t => {
+      return transformTransfer(t);
+    });
+  } catch (err) {
+    console.log(err)
+    throw err;
+  }
+};
+
+const transferByIdPaymentsTo = async paymentsIds => {
+  try {
+    const transfers = await Transfer.find({ toPayment: { $in: paymentsIds } });
+    transfers.sort((a, b) => {
+      return (
+        paymentsIds.indexOf(a.toPayment.toString()) - paymentsIds.indexOf(b.toPayment.toString())
+      );
+    });
+    console.log("transferids", transfers)
+    return transfers.map(t => {
       return transformTransfer(t);
     });
   } catch (err) {
@@ -178,7 +196,12 @@ const transformPayment = payment => {
           return depositByIdPaymentLoader.load(payment.id.toString())
         }
         if(payment._doc.paymentType == "transfer"){
-          return transferByIdPaymentLoader.load(payment.id.toString())
+          if(payment._doc.credit == 0){
+            return transferByIdPaymentFromLoader.load(payment.id.toString())
+          }
+          else{
+            return transferByIdPaymentToLoader.load(payment.id.toString())
+          }
         }
       }
   };
@@ -212,3 +235,4 @@ exports.transformAccount = transformAccount;
 exports.transformDeposit = transformDeposit;
 exports.transformPayment = transformPayment;
 exports.transformTransfer = transformTransfer;
+exports.transformUser = transformUser;

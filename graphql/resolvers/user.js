@@ -3,14 +3,19 @@ const User = require('../../models/user');
 const Account = require('../../models/account');
 const jwt = require('jsonwebtoken');
 const { isAuthenticated } = require('./auth-helper')
+const { transformUser } = require('./merge');
+
 module.exports = {
     user: (_id, req) => {
         isAuthenticated(req)
-        return User.findById(_id)
+        return transformUser(User.findById(_id).populate('accounts'))
     },
-    users: (args, req) => {
+    users: async (args, req) => {
         isAuthenticated(req)
-        return User.find().skip(args.pagination.skip).limit(args.pagination.limit).exec()
+        let users = await User.find().populate('accounts').skip(args.pagination.skip).limit(args.pagination.limit).exec()
+        return users.map(user => {
+            return transformUser(user);
+        });
     },
     createUser: async ({ input }) => {
         let user = await User.findOne({ email: input.email})
@@ -31,7 +36,7 @@ module.exports = {
         if (!user) {
             throw new Error('User not found')
         }
-        return await User.findById(_id);
+        return await User.findById(_id).populate("accounts");
     },
     deleteUser: async (_id, req) => {
         isAuthenticated(req)
