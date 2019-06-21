@@ -1,0 +1,7 @@
+{
+    "env": {
+        "MONGO_USER": "wallex",
+        "MONGO_PASSWORD": "wLiJy0vSxEg3ioJ5",
+        "MONGO_DB": "wallex-tes"
+    }
+}

@@ -1,0 +1,35 @@
+{
+  "name": "wallex-tes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lateph/wallex-tes.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lateph/wallex-tes/issues"
+  },
+  "homepage": "https://github.com/lateph/wallex-tes#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dataloader": "^1.4.0",
+    "express": "^4.17.1",
+    "express-graphql": "^0.8.0",
+    "express-jwt": "^5.3.1",
+    "graphql": "^14.3.1",
+    "graphql-iso-date": "^3.6.1",
+    "graphql-tools": "^4.0.5",
+    "helmet": "^3.18.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.6.0"
+  }
+}
